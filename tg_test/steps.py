@@ -52,8 +52,14 @@ class Runner:
                 shutil.copy2(src_shot, os.path.join(out_dir, f"step{idx:02d}.png"))
         except Exception:
             pass
-        # 3) 텔레그램 내부 디버그 로그(활성화된 경우) pull
+        # 3) 텔레그램 디버그 로그: 아직 비활성이면 1회 켜기 시도(문제 발생 시), 그 후 pull
         try:
+            if not getattr(self, "_dbg_enabled", False):
+                if self.dev.telegram_debug_logs_enabled():
+                    self._dbg_enabled = True
+                elif not getattr(self, "_dbg_tried", False):
+                    self._dbg_tried = True
+                    self._dbg_enabled = self.dev.enable_telegram_debug_logs()
             self.dev.pull_telegram_logs(out_dir)
         except Exception:
             pass

@@ -53,6 +53,46 @@ class Device:
         except Exception:
             pass
 
+    def telegram_debug_logs_enabled(self):
+        """텔레그램 디버그 로그 폴더에 파일이 있으면 활성화된 것으로 간주."""
+        logdir = "/sdcard/Android/data/org.telegram.messenger/files/logs"
+        rc, out, err = self.adb("shell", "ls", logdir, timeout=15)
+        return rc == 0 and bool(out.strip()) and "No such" not in (out + err)
+
+    def enable_telegram_debug_logs(self):
+        """best-effort: 텔레그램 설정 하단 버전 여러 번 탭 → 디버그 메뉴 → 로그 활성화.
+        성공 추정 시 True. (UI가 버전마다 달라 실패할 수 있음)"""
+        import re
+        d = self.d
+        try:
+            # 설정 탭
+            if not (d(text="설정").click_exists(timeout=4) or d(text="Settings").click_exists(timeout=2)):
+                return False
+            time.sleep(1.5)
+            # 하단으로 스크롤
+            for _ in range(10):
+                d.swipe_ext("up", scale=0.85)
+                time.sleep(0.25)
+            xml = d.dump_hierarchy()
+            cands = [t for t in re.findall(r'text="([^"]+)"', xml)
+                     if ("Telegram" in t) or re.search(r"\bv?\d+\.\d+(\.\d+)?", t)]
+            if not cands:
+                return False
+            el = d(text=cands[-1])
+            if not el.exists:
+                return False
+            for _ in range(12):
+                el.click(); time.sleep(0.15)
+            time.sleep(1)
+            # 디버그 메뉴에서 로그 활성화
+            for t in ["로그 활성화", "Enable Logs", "Enable logs", "디버그 로그 활성화", "로깅 사용", "로그 사용"]:
+                if d(text=t).click_exists(timeout=1):
+                    time.sleep(1)
+                    return True
+            return False
+        except Exception:
+            return False
+
     def pull_telegram_logs(self, dest_dir, count=2):
         """텔레그램 내부 디버그 로그(활성화된 경우) 최신 파일을 dest_dir로 pull.
         디버그 로그 미활성/폴더 없음 시 None. 반환: 받은 파일 경로 리스트."""
