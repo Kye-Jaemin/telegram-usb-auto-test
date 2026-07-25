@@ -78,6 +78,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESULTS_DIR = os.path.join(BASE_DIR, "results")
 SHOTS_DIR = os.path.join(RESULTS_DIR, "screenshots")
+DUMPS_DIR = os.path.join(RESULTS_DIR, "dumps")   # 실패 시 UI 계층 덤프(로컬 전용)
 RESULT_JSON = os.path.join(RESULTS_DIR, "result.json")
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
 DOCS_SHOTS_DIR = os.path.join(DOCS_DIR, "screenshots")

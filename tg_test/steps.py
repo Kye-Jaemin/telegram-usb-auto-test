@@ -21,24 +21,47 @@ from . import config
 
 
 class Runner:
-    def __init__(self, dev):
+    def __init__(self, dev, run_id=None):
         self.dev = dev
         self.d = dev.d
+        self.run_id = run_id or time.strftime("%Y%m%d-%H%M%S")
         self.results = []
 
-    # 결과 기록(+스크린샷)
+    def _save_dump(self, idx):
+        """문제 발생 단계의 adb logcat 스냅샷을 로컬에 저장(개인정보 포함 가능 → 비공개)."""
+        import os
+        try:
+            log = self.dev.logcat_snapshot()
+        except Exception as e:
+            log = f"logcat-error: {e}"
+        out_dir = os.path.join(config.DUMPS_DIR, self.run_id)
+        os.makedirs(out_dir, exist_ok=True)
+        path = os.path.join(out_dir, f"step{idx:02d}_logcat.txt")
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(log)
+        except Exception:
+            return None
+        return path
+
+    # 결과 기록(+스크린샷, 실패 시 덤프)
     def record(self, idx, title, status, detail):
         shot = f"step{idx:02d}"
-        path = self.dev.screenshot(shot)
+        self.dev.screenshot(shot)
+        dump_path = None
+        if status in ("FAIL", "WARN"):
+            dump_path = self._save_dump(idx)
         self.results.append({
             "idx": idx,
             "title": title,
             "status": status,          # PASS / FAIL / WARN / INFO
             "detail": detail,
             "screenshot": f"screenshots/{shot}.png",
+            "dump": dump_path,
             "ts": time.strftime("%H:%M:%S"),
         })
-        print(f"[{status}] {idx:02d}. {title} - {detail}")
+        extra = f" [덤프: {dump_path}]" if dump_path else ""
+        print(f"[{status}] {idx:02d}. {title} - {detail}{extra}")
         return status == "PASS"
 
     # ── 로그인 상태 판별 ─────────────────────────────────────────

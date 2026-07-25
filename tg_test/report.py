@@ -111,6 +111,8 @@ def export_failure_artifacts(meta, results):
     ]
     for r in results:
         log_lines.append(f"[{r['status']}] {r['idx']:02d}. {r['title']} - {r['detail']}")
+        if r.get("dump"):
+            log_lines.append(f"    로컬 덤프(비공개): {r['dump']}")
         if r["status"] in ("FAIL", "WARN"):
             src = os.path.join(config.RESULTS_DIR, r["screenshot"])
             shot_name = f"step{r['idx']:02d}.png"

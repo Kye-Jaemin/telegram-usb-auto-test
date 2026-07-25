@@ -34,12 +34,24 @@ class Device:
     # ── adb ───────────────────────────────────────────────────────
     def adb(self, *args, timeout=30):
         cmd = ["adb", "-s", self.serial, *args]
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        p = subprocess.run(cmd, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=timeout)
         return p.returncode, (p.stdout or "").strip(), (p.stderr or "").strip()
 
     def shell(self, cmd, timeout=30):
         rc, out, err = self.adb("shell", cmd, timeout=timeout)
         return out if rc == 0 else (out + err)
+
+    def logcat_snapshot(self, lines=5000):
+        """현재 logcat 버퍼 스냅샷(최근 N줄)을 문자열로 반환."""
+        rc, out, err = self.adb("logcat", "-d", "-v", "time", "-t", str(lines), timeout=60)
+        return out if rc == 0 else (out + "\n" + err)
+
+    def logcat_clear(self):
+        try:
+            self.adb("logcat", "-c", timeout=15)
+        except Exception:
+            pass
 
     # ── 스크린샷 ──────────────────────────────────────────────────
     def screenshot(self, name):
