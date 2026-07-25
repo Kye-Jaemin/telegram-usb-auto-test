@@ -6,11 +6,11 @@
   },
   "runs": [
     {
-      "run_id": "20260726-014235",
-      "run_at": "2026-07-26 01:42:35",
+      "run_id": "20260726-015324",
+      "run_at": "2026-07-26 01:53:24",
       "model": "SM-F971N",
       "android": "17",
-      "duration": 154.9,
+      "duration": 157.4,
       "overall": "PASS",
       "n_pass": 14,
       "n_fail": 0,
@@ -38,7 +38,7 @@
           "idx": 4,
           "title": "Recent 진입 후 텔레그램 종료",
           "status": "PASS",
-          "detail": "최근앱 스와이프 후 잔여 pid='8482', 강제종료 후 종료됨: True"
+          "detail": "최근앱 스와이프 후 잔여 pid='22459', 강제종료 후 종료됨: True"
         },
         {
           "idx": 5,
