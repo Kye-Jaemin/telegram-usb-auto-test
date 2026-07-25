@@ -15,7 +15,21 @@ class Device:
         self.d = u2.connect(self.serial) if self.serial else u2.connect()
         # 실제 시리얼 확정
         self.serial = self.d.serial
+        # 화면 해상도(좌표 비율 계산용) — 기기마다 다름
+        try:
+            self.w, self.h = self.d.window_size()
+        except Exception:
+            self.w, self.h = 1080, 2340
         os.makedirs(config.SHOTS_DIR, exist_ok=True)
+        # USB 연결 중 화면 항상 켜짐(자동잠금 방지) — 자동화 안정화
+        try:
+            self.shell("svc power stayon usb")
+        except Exception:
+            pass
+
+    def tap_ratio(self, rx, ry):
+        """화면 비율(0~1)로 좌표 탭 — 해상도 독립."""
+        self.d.click(int(self.w * rx), int(self.h * ry))
 
     # ── adb ───────────────────────────────────────────────────────
     def adb(self, *args, timeout=30):

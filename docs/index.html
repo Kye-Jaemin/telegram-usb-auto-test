@@ -45,6 +45,11 @@
   .fbody img { width:100%; display:block; }
   .fbody p { margin:8px 10px; font-size:.78rem; color:var(--sub); }
   .noimg { padding:30px; text-align:center; color:var(--sub); font-size:.8rem; }
+  ol.scenario { list-style:none; margin:0; padding:0; counter-reset:none; }
+  ol.scenario li { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--border); font-size:.9rem; }
+  ol.scenario li:last-child { border-bottom:none; }
+  .snum { color:var(--sub); font-variant-numeric:tabular-nums; font-weight:700; min-width:24px; }
+  .stitle { flex:1; }
   footer { text-align:center; color:var(--sub); font-size:.76rem; margin-top:24px; }
 </style>
 </head>
@@ -65,23 +70,29 @@
   
 
   <section>
-    <h2>🧭 최근 실행 상세 (마지막: 2026-07-26 01:10:39 · PASS)</h2>
+    <h2>🧭 전체 테스트 시나리오 (14단계)</h2>
+    <ol class='scenario'><li><span class='snum'>01</span><span class='stitle'>텔레그램 실행</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>02</span><span class='stitle'>설정 &gt; 내 계정 &gt; 로그아웃</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>03</span><span class='stitle'>로그아웃 확인</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>04</span><span class='stitle'>Recent 진입 후 텔레그램 종료</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>05</span><span class='stitle'>텔레그램 재실행 &gt; 시작하기</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>06</span><span class='stitle'>이전 로그인 정보로 로그인(국가코드 +82, 번호 확인 '네')</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>07</span><span class='stitle'>로그인 확인 (SMS 코드 자동입력)</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>08</span><span class='stitle'>비행기모드 On</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>09</span><span class='stitle'>5초 후 비행기모드 Off</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>10</span><span class='stitle'>ExpressVPN 실행</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>11</span><span class='stitle'>ExpressVPN 서버 미국으로 변경</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>12</span><span class='stitle'>텔레그램 재실행 정상 동작</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>13</span><span class='stitle'>&quot;뚱재민&quot;에게 &quot;test&quot; 전송</span><span class='pill' style='background:#16a34a'>PASS</span></li><li><span class='snum'>14</span><span class='stitle'>ExpressVPN 서버 한국으로 변경 → 최종 Success</span><span class='pill' style='background:#16a34a'>PASS</span></li></ol>
+  </section>
+
+  <section>
+    <h2>📋 최근 실행 단계별 결과 (마지막: 2026-07-26 01:42:35 · PASS)</h2>
     <div class="tablescroll">
     <table>
       <thead><tr><th>#</th><th>단계</th><th>결과</th><th>상세</th></tr></thead>
-      <tbody><tr><td>01</td><td>텔레그램 실행</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>현재 앱: com.fitbit.FitbitMobile, 텔레그램 채팅목록 감지: True</td></tr>
+      <tbody><tr><td>01</td><td>텔레그램 실행</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>현재 앱: org.telegram.messenger, 텔레그램 채팅목록 감지: True</td></tr>
 <tr><td>02</td><td>설정&gt;내 계정&gt;로그아웃</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>옵션화면 로그아웃버튼:True, 확인:True, 로그아웃됨:True</td></tr>
 <tr><td>03</td><td>로그아웃 확인</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>로그인 화면(시작하기/전화번호) 감지: True</td></tr>
-<tr><td>04</td><td>Recent 진입 후 텔레그램 종료</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>최근앱 스와이프 후 잔여 pid='3787', 강제종료 후 종료됨: True</td></tr>
+<tr><td>04</td><td>Recent 진입 후 텔레그램 종료</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>최근앱 스와이프 후 잔여 pid='8482', 강제종료 후 종료됨: True</td></tr>
 <tr><td>05</td><td>텔레그램 재실행 &gt; 시작하기</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>'시작하기' 탭: True, 로그인 진행화면 감지: True</td></tr>
 <tr><td>06</td><td>로그인 화살표(다음) 선택</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>국가코드82:True, 번호:True, 다음:True, 확인(네):False — SMS 자동입력 대기</td></tr>
 <tr><td>07</td><td>로그인 확인</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>채팅 목록/하단 탭 감지(로그인 완료): True</td></tr>
 <tr><td>08</td><td>비행기모드 On</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>비행기모드 On (방식: cmd connectivity, 상태=True)</td></tr>
 <tr><td>09</td><td>5초 후 비행기모드 Off</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>5초 유지 후 Off (방식: cmd connectivity, 상태=False)</td></tr>
-<tr><td>10</td><td>Thunder VPN 실행</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>현재 앱: com.fitbit.FitbitMobile, VPN 화면 감지: True</td></tr>
-<tr><td>11</td><td>VPN 서버 미국으로 변경</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>선택: 미국 Los Angeles, 연결/미국 표시 감지: True</td></tr>
-<tr><td>12</td><td>텔레그램 재실행 정상 동작</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>정상 실행: False, 로그인 유지: True</td></tr>
-<tr><td>13</td><td>&quot;경애&quot;에게 &quot;test&quot; 전송</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>대화방(경애):True, 입력:True, 전송:True, 입력창비움:True</td></tr></tbody>
+<tr><td>10</td><td>ExpressVPN 실행</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>현재 앱: com.expressvpn.vpn, VPN 화면 감지: True</td></tr>
+<tr><td>11</td><td>ExpressVPN 서버 미국으로 변경</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>위치변경진입:True, 선택:미국 - 로스앤젤레스 - 1, 연결/미국표시:True</td></tr>
+<tr><td>12</td><td>텔레그램 재실행 정상 동작</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>정상 실행: True, 로그인 유지: True</td></tr>
+<tr><td>13</td><td>&quot;뚱재민&quot;에게 &quot;test&quot; 전송</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>검색:True, 대화방:True, 입력:True, 전송:True, 입력창비움:True</td></tr>
+<tr><td>14</td><td>ExpressVPN 서버 한국으로 변경(최종)</td><td><span class='dot' style='background:#16a34a'></span>PASS</td><td class='dt'>위치변경진입:True, 선택:대한민국 - 2, 연결/한국표시:True</td></tr></tbody>
     </table>
     </div>
   </section>
@@ -91,12 +102,12 @@
     <div class="tablescroll">
     <table>
       <thead><tr><th>실행 시각</th><th>결과</th><th>통과</th><th>소요</th><th>run id</th></tr></thead>
-      <tbody><tr><td>2026-07-26 01:10:39</td><td><span class='pill' style='background:#16a34a'>PASS</span></td><td>13/13</td><td>159.4s</td><td class='rid'>20260726-011943</td></tr></tbody>
+      <tbody><tr><td>2026-07-26 01:42:35</td><td><span class='pill' style='background:#16a34a'>PASS</span></td><td>14/14</td><td>154.9s</td><td class='rid'>20260726-014235</td></tr></tbody>
     </table>
     </div>
   </section>
 
-  <footer>기기 SM-S928N · Android 16 · 자동 생성 대시보드</footer>
+  <footer>기기 SM-F971N · Android 17 · 자동 생성 대시보드</footer>
 </div>
 </body>
 </html>

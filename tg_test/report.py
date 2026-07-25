@@ -14,6 +14,24 @@ from . import config
 
 HISTORY = os.path.join(config.RESULTS_DIR, "history.json")
 
+# 대시보드에 표시할 전체 시나리오(고정)
+SCENARIO = [
+    "텔레그램 실행",
+    "설정 > 내 계정 > 로그아웃",
+    "로그아웃 확인",
+    "Recent 진입 후 텔레그램 종료",
+    "텔레그램 재실행 > 시작하기",
+    "이전 로그인 정보로 로그인(국가코드 +82, 번호 확인 '네')",
+    "로그인 확인 (SMS 코드 자동입력)",
+    "비행기모드 On",
+    "5초 후 비행기모드 Off",
+    "ExpressVPN 실행",
+    "ExpressVPN 서버 미국으로 변경",
+    "텔레그램 재실행 정상 동작",
+    '"뚱재민"에게 "test" 전송',
+    "ExpressVPN 서버 한국으로 변경 → 최종 Success",
+]
+
 
 # ── 이력 로드/저장 ────────────────────────────────────────────────
 def load_history():
@@ -134,6 +152,20 @@ def build_dashboard(hist, last_run, failure_arts):
         )
     run_rows_html = "\n".join(run_rows)
 
+    # 전체 시나리오(고정) — 마지막 실행의 각 단계 결과를 배지로 표시
+    last_status = {s["idx"]: s["status"] for s in last_run["steps"]}
+    scen_rows = []
+    for i, title in enumerate(SCENARIO, start=1):
+        st = last_status.get(i, "-")
+        c = {"PASS": "#16a34a", "FAIL": "#dc2626", "WARN": "#d97706"}.get(st, "#9aa1ad")
+        badge = (f"<span class='pill' style='background:{c}'>{st}</span>"
+                 if st != "-" else "<span class='pill' style='background:#9aa1ad'>-</span>")
+        scen_rows.append(
+            f"<li><span class='snum'>{i:02d}</span>"
+            f"<span class='stitle'>{_esc(title)}</span>{badge}</li>"
+        )
+    scenario_html = "<ol class='scenario'>" + "".join(scen_rows) + "</ol>"
+
     # 마지막 실행 단계 상세
     step_rows = []
     for s in last_run["steps"]:
@@ -214,6 +246,11 @@ def build_dashboard(hist, last_run, failure_arts):
   .fbody img {{ width:100%; display:block; }}
   .fbody p {{ margin:8px 10px; font-size:.78rem; color:var(--sub); }}
   .noimg {{ padding:30px; text-align:center; color:var(--sub); font-size:.8rem; }}
+  ol.scenario {{ list-style:none; margin:0; padding:0; counter-reset:none; }}
+  ol.scenario li {{ display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--border); font-size:.9rem; }}
+  ol.scenario li:last-child {{ border-bottom:none; }}
+  .snum {{ color:var(--sub); font-variant-numeric:tabular-nums; font-weight:700; min-width:24px; }}
+  .stitle {{ flex:1; }}
   footer {{ text-align:center; color:var(--sub); font-size:.76rem; margin-top:24px; }}
 </style>
 </head>
@@ -234,7 +271,12 @@ def build_dashboard(hist, last_run, failure_arts):
   {fail_html}
 
   <section>
-    <h2>🧭 최근 실행 상세 (마지막: {_esc(last_run['run_at'])} · {last_run['overall']})</h2>
+    <h2>🧭 전체 테스트 시나리오 (14단계)</h2>
+    {scenario_html}
+  </section>
+
+  <section>
+    <h2>📋 최근 실행 단계별 결과 (마지막: {_esc(last_run['run_at'])} · {last_run['overall']})</h2>
     <div class="tablescroll">
     <table>
       <thead><tr><th>#</th><th>단계</th><th>결과</th><th>상세</th></tr></thead>

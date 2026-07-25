@@ -112,7 +112,7 @@ class Runner:
         # 최근 앱 진입
         self.dev.close_recents()  # KEYCODE_APP_SWITCH + settle
         # 최근앱 화면에서 앞 카드(텔레그램) 위로 스와이프하여 종료
-        w, h = 1080, 2340
+        w, h = self.dev.w, self.dev.h
         try:
             self.d.swipe(w // 2, int(h * 0.6), w // 2, int(h * 0.1), 0.25)
         except Exception:
@@ -177,7 +177,8 @@ class Runner:
         tapped = self.dev.tap_desc(["다음", "Next", "완료", "Done", "Continue"], timeout=4)
         if not tapped:
             try:
-                self.d.click(940, 1450)
+                # 우하단 파란 화살표 FAB (해상도 비율)
+                self.dev.tap_ratio(0.87, 0.62)
                 tapped = True
             except Exception:
                 pass
@@ -223,48 +224,57 @@ class Runner:
         time.sleep(config.T_APP_LAUNCH + 2)
         pkg = self.dev.current_pkg()
         on_vpn = pkg == config.PKG_VPN or self.dev.exists_any_text(
-            ["Thunder VPN", "위치", "연결", "Connect"], timeout=5)
-        return self.record(10, "Thunder VPN 실행",
+            ["선택된 위치", "보호", "변경", "VPN 위치", "ExpressVPN"], timeout=5)
+        return self.record(10, "ExpressVPN 실행",
                            "PASS" if on_vpn else "FAIL",
                            f"현재 앱: {pkg}, VPN 화면 감지: {on_vpn}")
 
+    # ── ExpressVPN 위치 변경 공용 헬퍼 ───────────────────────────
+    def _vpn_pick(self, texts):
+        """텍스트 포함 항목 중 첫 요소를 좌표 없이 클릭. 성공 시 선택 라벨 반환."""
+        for t in texts:
+            el = self.d(textContains=t)
+            if el.count > 0:
+                try:
+                    label = el[0].info.get("text") or t
+                except Exception:
+                    label = t
+                el[0].click()
+                return True, label
+        return False, None
+
+    def _vpn_change_country(self, country_texts):
+        """ExpressVPN에서 국가를 변경한다. (opened, selected, label, connected) 반환.
+
+        흐름: 홈 '변경' → 위치목록 → 구체 서버('<국가> - 도시') 탭
+             → '위치를 변경하시나요?' 계속 → 연결.
+        """
+        # 홈의 평점 팝업 닫기(있으면)
+        self.dev.tap_texts(config.VPN_DISMISS_TEXTS, timeout=2)
+        # 위치 변경 진입
+        opened = self.dev.tap_texts(config.VPN_CHANGE_LOCATION_TEXTS, timeout=6)
+        time.sleep(2.5)
+        # 구체 서버(하이픈 포함) 우선 선택, 없으면 국가명
+        hyphen = [c + " -" for c in country_texts]
+        selected, label = self._vpn_pick(hyphen)
+        if not selected:
+            selected, label = self._vpn_pick(country_texts)
+        time.sleep(2)
+        # '위치를 변경하시나요?' 확인 다이얼로그 → 계속
+        self.dev.tap_texts(["계속", "Continue", "확인", "OK"], timeout=5, partial=False)
+        time.sleep(config.T_APP_LAUNCH)
+        # 연결 후 팝업 닫기
+        self.dev.tap_texts(config.VPN_DISMISS_TEXTS, timeout=2)
+        connected = self.dev.exists_any_text(
+            config.VPN_CONNECTED_TEXTS + country_texts, timeout=12)
+        return opened, selected, label, connected
+
     # ── STEP 11 ──────────────────────────────────────────────────
     def step11_change_to_usa(self):
-        # 서버 선택 진입: 우상단 글로브 아이콘
-        self.d.click(988, 175)
-        time.sleep(2.5)
-        opened = self.dev.exists_any_text(["서버 선택", "서버 위치", "Select Server", "위치"], timeout=6)
-        if not opened:
-            # 대체: '위치' 텍스트/변경 버튼
-            self.dev.tap_texts(config.VPN_CHANGE_LOCATION_TEXTS, timeout=4)
-            time.sleep(2)
-        # 미국 도시 우선순위로 선택(현재 선택과 다른 도시를 우선)
-        selected = False
-        for city in ["Los Angeles", "Oregon", "Las Vegas", "Seattle", "Dallas", "New York"]:
-            el = self.d(text=city)
-            if el.exists:
-                el.click()
-                selected = True
-                picked = f"미국 {city}"
-                break
-        if not selected:
-            # 그냥 '미국' 항목 선택
-            if self.dev.tap_texts(config.VPN_USA_TEXTS, timeout=5):
-                selected = True
-                picked = "미국"
-            else:
-                picked = "없음"
-        time.sleep(config.T_APP_LAUNCH)
-        # 평점/추천 팝업이 뜨면 '나중에'로 닫기
-        self.dev.tap_texts(config.VPN_DISMISS_TEXTS, timeout=4)
-        time.sleep(1.5)
-        # 연결/전환 후 광고가 뜨면 닫기 시도
-        self.dev.tap_desc(["닫기", "Close", "광고 닫기"], timeout=2)
-        connected = self.dev.exists_any_text(config.VPN_CONNECTED_TEXTS + ["미국", "United States"], timeout=10)
-        status = "PASS" if selected else "FAIL"
-        return self.record(11, "VPN 서버 미국으로 변경",
-                           status,
-                           f"선택: {picked}, 연결/미국 표시 감지: {connected}")
+        opened, selected, label, connected = self._vpn_change_country(config.VPN_USA_TEXTS)
+        return self.record(11, "ExpressVPN 서버 미국으로 변경",
+                           "PASS" if (selected and connected) else ("WARN" if selected else "FAIL"),
+                           f"위치변경진입:{opened}, 선택:{label}, 연결/미국표시:{connected}")
 
     # ── STEP 12 ──────────────────────────────────────────────────
     def step12_final_telegram(self):
@@ -284,30 +294,47 @@ class Runner:
         e = self.d(className="android.widget.EditText")
         return e if e.exists else None
 
+    def _in_chat_input(self):
+        """대화방 하단 메시지 입력창(EditText가 화면 하단부에 위치)이면 반환, 아니면 None."""
+        e = self.d(className="android.widget.EditText")
+        if e.exists:
+            try:
+                if e.info["bounds"]["top"] > self.dev.h * 0.6:
+                    return e
+            except Exception:
+                return e if e.exists else None
+        return None
+
     def step13_send_test_message(self):
         target = config.TG_TARGET_CONTACT
         msg = config.TG_TEST_MESSAGE
-        # 서브화면/검색 상태 정리 후 텔레그램 채팅목록으로
+        # 서브화면/검색 상태 정리 후 텔레그램 대화 탭
         for _ in range(2):
             self.d.press("back")
             time.sleep(0.5)
         self.dev.app_start(config.PKG_TELEGRAM, stop=False)
         time.sleep(2.5)
         self.dev.tap_texts(["대화", "Chats"], timeout=5, partial=False)
-        time.sleep(1.5)
-        # 최상단 채팅 행(=경애, 최근 대화) 좌표 직접 탭 → 대화방 진입
-        # (텔레그램 목록 행은 커스텀 뷰라 접근성 클릭이 동작하지 않아 좌표 탭 사용)
-        self.d.click(400, 490)
+        time.sleep(1.2)
+        # 검색으로 대상 찾기(채팅목록/검색결과 행은 a11y 미노출 → 검색 후 첫 결과 좌표 탭)
+        searched = self.dev.tap_texts(["대화 검색", "Search", "검색"], timeout=5)
+        time.sleep(1)
+        try:
+            self.d.send_keys(target, clear=True)
+        except Exception:
+            self.d.send_keys(target)
         time.sleep(2.5)
-        # 프로필 페이지면(입력창 없음) '메시지' 버튼으로 대화방 진입
-        if self._message_input() is None:
+        # 첫 검색결과 행 좌표 탭 → 대화방 진입
+        self.dev.tap_ratio(0.33, 0.24)
+        time.sleep(3)
+        # 프로필 페이지면(하단 입력창 없음) '메시지' 버튼으로 대화방 진입
+        if self._in_chat_input() is None:
             self.dev.tap_texts(["메시지", "Message"], timeout=3, partial=False)
             time.sleep(2)
-        # 대상 대화방인지 확인(툴바 desc/텍스트)
-        in_chat = self.d(descriptionContains=target).exists or self.d(text=target).exists
+        edit = self._in_chat_input()
+        in_chat = edit is not None
         # 메시지 입력
         typed = False
-        edit = self._message_input()
         if edit is not None:
             edit.click()
             time.sleep(0.4)
@@ -328,7 +355,7 @@ class Runner:
         time.sleep(2.5)
         # 검증: 입력창이 비워짐(전송 완료 신호) + 대화방 유지
         input_after = ""
-        e2 = self._message_input()
+        e2 = self._in_chat_input()
         if e2 is not None:
             try:
                 input_after = e2.get_text() or ""
@@ -339,7 +366,17 @@ class Runner:
         status = "PASS" if confirmed else ("WARN" if (typed and sent) else "FAIL")
         return self.record(13, f'"{target}"에게 "{msg}" 전송',
                            status,
-                           f'대화방(경애):{in_chat}, 입력:{typed}, 전송:{sent}, 입력창비움:{cleared}')
+                           f'검색:{searched}, 대화방:{in_chat}, 입력:{typed}, 전송:{sent}, 입력창비움:{cleared}')
+
+    # ── STEP 14 ──────────────────────────────────────────────────
+    def step14_change_to_korea(self):
+        # ExpressVPN 실행 후 국가를 한국으로 변경
+        self.dev.app_start(config.PKG_VPN, stop=False)
+        time.sleep(config.T_APP_LAUNCH)
+        opened, selected, label, connected = self._vpn_change_country(config.VPN_KOREA_TEXTS)
+        return self.record(14, "ExpressVPN 서버 한국으로 변경(최종)",
+                           "PASS" if (selected and connected) else ("WARN" if selected else "FAIL"),
+                           f"위치변경진입:{opened}, 선택:{label}, 연결/한국표시:{connected}")
 
     # ── 전체 실행 ────────────────────────────────────────────────
     def run_all(self):
@@ -357,6 +394,7 @@ class Runner:
             self.step11_change_to_usa,
             self.step12_final_telegram,
             self.step13_send_test_message,
+            self.step14_change_to_korea,
         ]
         for fn in steps:
             try:

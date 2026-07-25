@@ -10,9 +10,9 @@ DEVICE_SERIAL = None  # None이면 첫 번째 연결 기기 사용
 
 # ── 패키지 ────────────────────────────────────────────────────────
 PKG_TELEGRAM = "org.telegram.messenger"
-# Thunder VPN (Free VPN Proxy)
-PKG_VPN = "com.fast.free.unblock.thunder.vpn"
-VPN_APP_NAME = "Thunder VPN"
+# ExpressVPN
+PKG_VPN = "com.expressvpn.vpn"
+VPN_APP_NAME = "ExpressVPN"
 
 # ── 타이밍(초) ────────────────────────────────────────────────────
 T_APP_LAUNCH = 6      # 앱 실행 후 안정화 대기
@@ -29,9 +29,10 @@ TG_LOGGED_OUT_TEXTS = [
 TG_NUMBER_SCREEN_TEXTS = [
     "내 전화번호", "전화번호", "Your Phone Number", "Phone Number", "국가", "Country",
 ]
-# 재로그인용 국가코드/전화번호(계정: +82 10-3419-3846)
+# 재로그인용 국가코드/전화번호(로그아웃 후 번호가 비어있을 때만 사용하는 폴백)
+# 이 폰 계정: 정경애 +82 10-7404-3537
 TG_COUNTRY_CODE = "82"
-TG_PHONE_NATIONAL = "1034193846"
+TG_PHONE_NATIONAL = "1074043537"
 # 번호 확인 다이얼로그 긍정 버튼(주의: '예'가 아니라 '네')
 TG_NUMBER_CONFIRM_TEXTS = ["네", "예", "계속", "OK", "확인", "Yes", "Continue"]
 # 로그인 완료 상태(채팅 목록)에서 나타나는 요소
@@ -52,22 +53,25 @@ TG_LOGOUT_CONFIRM_TEXTS = ["로그아웃", "Log Out", "Log out", "확인", "OK",
 TG_START_TEXTS = ["시작하기", "Start Messaging", "메시지 보내기 시작"]
 
 # ── 최종 메시지 발송(정상동작 확인) ───────────────────────────────
-TG_TARGET_CONTACT = "경애"   # 정확히 일치하는 대화 이름
+TG_TARGET_CONTACT = "뚱재민"   # 정확히 일치하는 대화 이름
 TG_TEST_MESSAGE = "test"
 
-# ── Thunder VPN ───────────────────────────────────────────────────
-# 위치(서버) 선택 목록으로 진입하는 버튼/영역 텍스트/desc 후보
+# ── ExpressVPN ────────────────────────────────────────────────────
+# 위치 변경 진입(선택된 위치 영역/버튼) 텍스트/desc 후보
 VPN_CHANGE_LOCATION_TEXTS = [
-    "선택된 위치 변경", "Change Location", "위치 변경",
-    "Select Location", "Choose Server", "Servers", "Location",
-    "스마트 위치", "Smart Location", "Free servers", "무료 서버",
+    "선택된 위치 변경", "Change Location", "위치 변경", "Selected Location",
+    "Choose Location", "VPN 위치", "위치", "변경", "Change",
 ]
 # 미국 위치 텍스트 후보
-VPN_USA_TEXTS = ["미국", "United States", "USA", "US ", "United States "]
+VPN_USA_TEXTS = ["미국", "United States", "USA", "United States "]
+# 한국 위치 텍스트 후보
+VPN_KOREA_TEXTS = ["대한민국", "한국", "South Korea", "Korea"]
+# 위치 검색창 힌트
+VPN_SEARCH_TEXTS = ["검색", "Search", "국가 또는 지역 검색", "Search for country or region"]
 # VPN 연결 성공 판별용 텍스트 후보
-VPN_CONNECTED_TEXTS = ["연결됨", "Connected", "연결 해제", "Disconnect", "TAP TO DISCONNECT"]
-# VPN 평점/추천 팝업 닫기 버튼 후보
-VPN_DISMISS_TEXTS = ["나중에", "Later", "No thanks", "취소", "Cancel", "닫기", "다음에"]
+VPN_CONNECTED_TEXTS = ["보호 중", "Protected", "연결됨", "Connected", "연결 완료"]
+# 평점/추천/기타 팝업 닫기 버튼 후보
+VPN_DISMISS_TEXTS = ["나중에", "Later", "No thanks", "취소", "Cancel", "닫기", "다음에", "확인", "OK"]
 
 # ── 스크린샷/결과 경로 ────────────────────────────────────────────
 import os
