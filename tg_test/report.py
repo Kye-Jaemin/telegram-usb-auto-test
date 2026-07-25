@@ -66,7 +66,7 @@ def append_run(meta, results):
         "failed_steps": [r["idx"] for r in results if r["status"] in ("FAIL", "WARN")],
     }
     hist["runs"].insert(0, run)          # 최신이 앞
-    hist["runs"] = hist["runs"][:200]    # 최근 200건 유지
+    hist["runs"] = hist["runs"][:5000]   # 전체 보존(상한 5000)
     hist["totals"]["attempts"] += 1
     if overall == "PASS":
         hist["totals"]["pass"] += 1
@@ -141,16 +141,18 @@ def build_dashboard(hist, last_run, failure_arts):
     with open(os.path.join(config.DOCS_DIR, "data", "history.json"), "w", encoding="utf-8") as f:
         json.dump(hist, f, ensure_ascii=False, indent=2)
 
-    # 최근 실행 행
+    # 실행 이력 전체(run_id로 로그 조회 가능하도록 모두 표시)
     run_rows = []
-    for run in hist["runs"][:30]:
+    for run in hist["runs"]:
         color = "#16a34a" if run["overall"] == "PASS" else "#dc2626"
+        fails = ",".join(f"{i:02d}" for i in run.get("failed_steps", []))
         run_rows.append(
             f"<tr><td>{_esc(run['run_at'])}</td>"
             f"<td><span class='pill' style='background:{color}'>{run['overall']}</span></td>"
             f"<td>{run['n_pass']}/{len(run['steps'])}</td>"
             f"<td>{run['duration']}s</td>"
-            f"<td class='rid'>{_esc(run['run_id'])}</td></tr>"
+            f"<td class='rid'>{_esc(run['run_id'])}</td>"
+            f"<td class='rid'>{_esc(fails) or '-'}</td></tr>"
         )
     run_rows_html = "\n".join(run_rows)
 
@@ -238,6 +240,10 @@ def build_dashboard(hist, last_run, failure_arts):
   .rid {{ color:var(--sub); font-family:ui-monospace,monospace; font-size:.78rem; }}
   .dt {{ color:var(--sub); }}
   .tablescroll {{ overflow-x:auto; }}
+  .histscroll {{ overflow:auto; max-height:520px; border:1px solid var(--border); border-radius:8px; }}
+  .histscroll table {{ margin:0; }}
+  .histscroll thead th {{ position:sticky; top:0; background:var(--card); z-index:1; }}
+  code {{ font-family:ui-monospace,monospace; font-size:.82em; background:var(--bg); padding:1px 5px; border-radius:4px; }}
   .fails h2 {{ color:#dc2626; }}
   .loglink {{ font-size:.8rem; font-weight:600; margin-left:8px; }}
   .masknote {{ font-size:.78rem; color:var(--sub); margin:0 0 12px; }}
@@ -288,10 +294,11 @@ def build_dashboard(hist, last_run, failure_arts):
   </section>
 
   <section>
-    <h2>📜 실행 이력 (최근 30건)</h2>
-    <div class="tablescroll">
+    <h2>📜 실행 이력 (전체 {len(hist['runs'])}건)</h2>
+    <p class="masknote">run id로 로컬 로그를 조회하세요: <code>results/dumps/&lt;run id&gt;/</code> · 실패 아티팩트: <code>docs/runs/&lt;run id&gt;/</code></p>
+    <div class="histscroll">
     <table>
-      <thead><tr><th>실행 시각</th><th>결과</th><th>통과</th><th>소요</th><th>run id</th></tr></thead>
+      <thead><tr><th>실행 시각</th><th>결과</th><th>통과</th><th>소요</th><th>run id</th><th>실패단계</th></tr></thead>
       <tbody>{run_rows_html}</tbody>
     </table>
     </div>

@@ -35,6 +35,10 @@
   .rid { color:var(--sub); font-family:ui-monospace,monospace; font-size:.78rem; }
   .dt { color:var(--sub); }
   .tablescroll { overflow-x:auto; }
+  .histscroll { overflow:auto; max-height:520px; border:1px solid var(--border); border-radius:8px; }
+  .histscroll table { margin:0; }
+  .histscroll thead th { position:sticky; top:0; background:var(--card); z-index:1; }
+  code { font-family:ui-monospace,monospace; font-size:.82em; background:var(--bg); padding:1px 5px; border-radius:4px; }
   .fails h2 { color:#dc2626; }
   .loglink { font-size:.8rem; font-weight:600; margin-left:8px; }
   .masknote { font-size:.78rem; color:var(--sub); margin:0 0 12px; }
@@ -98,11 +102,12 @@
   </section>
 
   <section>
-    <h2>📜 실행 이력 (최근 30건)</h2>
-    <div class="tablescroll">
+    <h2>📜 실행 이력 (전체 1건)</h2>
+    <p class="masknote">run id로 로컬 로그를 조회하세요: <code>results/dumps/&lt;run id&gt;/</code> · 실패 아티팩트: <code>docs/runs/&lt;run id&gt;/</code></p>
+    <div class="histscroll">
     <table>
-      <thead><tr><th>실행 시각</th><th>결과</th><th>통과</th><th>소요</th><th>run id</th></tr></thead>
-      <tbody><tr><td>2026-07-26 01:53:24</td><td><span class='pill' style='background:#16a34a'>PASS</span></td><td>14/14</td><td>157.4s</td><td class='rid'>20260726-015324</td></tr></tbody>
+      <thead><tr><th>실행 시각</th><th>결과</th><th>통과</th><th>소요</th><th>run id</th><th>실패단계</th></tr></thead>
+      <tbody><tr><td>2026-07-26 01:53:24</td><td><span class='pill' style='background:#16a34a'>PASS</span></td><td>14/14</td><td>157.4s</td><td class='rid'>20260726-015324</td><td class='rid'>-</td></tr></tbody>
     </table>
     </div>
   </section>
