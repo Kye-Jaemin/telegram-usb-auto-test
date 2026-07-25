@@ -1,0 +1,101 @@
+{
+  "totals": {
+    "attempts": 1,
+    "pass": 1,
+    "fail": 0
+  },
+  "runs": [
+    {
+      "run_id": "20260726-011943",
+      "run_at": "2026-07-26 01:10:39",
+      "model": "SM-S928N",
+      "android": "16",
+      "duration": 159.4,
+      "overall": "PASS",
+      "n_pass": 13,
+      "n_fail": 0,
+      "n_warn": 0,
+      "steps": [
+        {
+          "idx": 1,
+          "title": "텔레그램 실행",
+          "status": "PASS",
+          "detail": "현재 앱: com.fitbit.FitbitMobile, 텔레그램 채팅목록 감지: True"
+        },
+        {
+          "idx": 2,
+          "title": "설정>내 계정>로그아웃",
+          "status": "PASS",
+          "detail": "옵션화면 로그아웃버튼:True, 확인:True, 로그아웃됨:True"
+        },
+        {
+          "idx": 3,
+          "title": "로그아웃 확인",
+          "status": "PASS",
+          "detail": "로그인 화면(시작하기/전화번호) 감지: True"
+        },
+        {
+          "idx": 4,
+          "title": "Recent 진입 후 텔레그램 종료",
+          "status": "PASS",
+          "detail": "최근앱 스와이프 후 잔여 pid='3787', 강제종료 후 종료됨: True"
+        },
+        {
+          "idx": 5,
+          "title": "텔레그램 재실행 > 시작하기",
+          "status": "PASS",
+          "detail": "'시작하기' 탭: True, 로그인 진행화면 감지: True"
+        },
+        {
+          "idx": 6,
+          "title": "로그인 화살표(다음) 선택",
+          "status": "PASS",
+          "detail": "국가코드82:True, 번호:True, 다음:True, 확인(네):False — SMS 자동입력 대기"
+        },
+        {
+          "idx": 7,
+          "title": "로그인 확인",
+          "status": "PASS",
+          "detail": "채팅 목록/하단 탭 감지(로그인 완료): True"
+        },
+        {
+          "idx": 8,
+          "title": "비행기모드 On",
+          "status": "PASS",
+          "detail": "비행기모드 On (방식: cmd connectivity, 상태=True)"
+        },
+        {
+          "idx": 9,
+          "title": "5초 후 비행기모드 Off",
+          "status": "PASS",
+          "detail": "5초 유지 후 Off (방식: cmd connectivity, 상태=False)"
+        },
+        {
+          "idx": 10,
+          "title": "Thunder VPN 실행",
+          "status": "PASS",
+          "detail": "현재 앱: com.fitbit.FitbitMobile, VPN 화면 감지: True"
+        },
+        {
+          "idx": 11,
+          "title": "VPN 서버 미국으로 변경",
+          "status": "PASS",
+          "detail": "선택: 미국 Los Angeles, 연결/미국 표시 감지: True"
+        },
+        {
+          "idx": 12,
+          "title": "텔레그램 재실행 정상 동작",
+          "status": "PASS",
+          "detail": "정상 실행: False, 로그인 유지: True"
+        },
+        {
+          "idx": 13,
+          "title": "\"경애\"에게 \"test\" 전송",
+          "status": "PASS",
+          "detail": "대화방(경애):True, 입력:True, 전송:True, 입력창비움:True"
+        }
+      ],
+      "failed_steps": []
+    }
+  ]
+}
