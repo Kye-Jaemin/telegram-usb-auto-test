@@ -53,6 +53,23 @@ class Device:
         except Exception:
             pass
 
+    def pull_telegram_logs(self, dest_dir, count=2):
+        """텔레그램 내부 디버그 로그(활성화된 경우) 최신 파일을 dest_dir로 pull.
+        디버그 로그 미활성/폴더 없음 시 None. 반환: 받은 파일 경로 리스트."""
+        import os
+        logdir = "/sdcard/Android/data/org.telegram.messenger/files/logs"
+        rc, out, err = self.adb("shell", "ls", "-t", logdir, timeout=15)
+        if rc != 0 or not out.strip() or "No such" in (out + err):
+            return []
+        files = [x.strip() for x in out.strip().splitlines() if x.strip()][:count]
+        pulled = []
+        for name in files:
+            dst = os.path.join(dest_dir, f"tglog_{name}")
+            r, _, _ = self.adb("pull", f"{logdir}/{name}", dst, timeout=60)
+            if r == 0:
+                pulled.append(dst)
+        return pulled
+
     # ── 스크린샷 ──────────────────────────────────────────────────
     def screenshot(self, name):
         path = os.path.join(config.SHOTS_DIR, f"{name}.png")

@@ -28,21 +28,36 @@ class Runner:
         self.results = []
 
     def _save_dump(self, idx):
-        """문제 발생 단계의 adb logcat 스냅샷을 로컬에 저장(개인정보 포함 가능 → 비공개)."""
+        """문제 발생 단계의 adb logcat 스냅샷 + 원본 스크린샷을 로컬에 저장(비공개).
+        반환: logcat 파일 경로(없으면 None)."""
         import os
+        import shutil
+        out_dir = os.path.join(config.DUMPS_DIR, self.run_id)
+        os.makedirs(out_dir, exist_ok=True)
+        # 1) logcat 스냅샷
         try:
             log = self.dev.logcat_snapshot()
         except Exception as e:
             log = f"logcat-error: {e}"
-        out_dir = os.path.join(config.DUMPS_DIR, self.run_id)
-        os.makedirs(out_dir, exist_ok=True)
-        path = os.path.join(out_dir, f"step{idx:02d}_logcat.txt")
+        log_path = os.path.join(out_dir, f"step{idx:02d}_logcat.txt")
         try:
-            with open(path, "w", encoding="utf-8") as f:
+            with open(log_path, "w", encoding="utf-8") as f:
                 f.write(log)
         except Exception:
-            return None
-        return path
+            log_path = None
+        # 2) 원본 스크린샷 복사(record에서 방금 찍은 것)
+        try:
+            src_shot = os.path.join(config.SHOTS_DIR, f"step{idx:02d}.png")
+            if os.path.exists(src_shot):
+                shutil.copy2(src_shot, os.path.join(out_dir, f"step{idx:02d}.png"))
+        except Exception:
+            pass
+        # 3) 텔레그램 내부 디버그 로그(활성화된 경우) pull
+        try:
+            self.dev.pull_telegram_logs(out_dir)
+        except Exception:
+            pass
+        return log_path
 
     # 결과 기록(+스크린샷, 실패 시 덤프)
     def record(self, idx, title, status, detail):
@@ -171,6 +186,26 @@ class Runner:
                            "PASS" if ok else "WARN",
                            f"'시작하기' 탭: {tapped}, 로그인 진행화면 감지: {ok}")
 
+    # ── Google SSO 로그인 처리(이메일 인증 요구 시) ──────────────
+    def _handle_google_sso(self):
+        """flood로 SMS 대신 이메일 인증 화면이 뜨면 Google 계정으로 로그인.
+        성공적으로 SSO 시도했으면 True."""
+        if not self.dev.exists_any_text(config.TG_EMAIL_VERIFY_TEXTS, timeout=2):
+            return False
+        # 'Google 계정으로 로그인' 탭
+        if not self.dev.tap_texts(config.TG_GOOGLE_LOGIN_TEXTS, timeout=4):
+            return False
+        time.sleep(4)
+        # 계정 선택(이름 또는 이메일)
+        picked = self.d(text=config.TG_GOOGLE_ACCOUNT_NAME).click_exists(timeout=5)
+        if not picked:
+            picked = self.d(textContains=config.TG_GOOGLE_ACCOUNT_EMAIL).click_exists(timeout=3)
+        time.sleep(5)
+        # 동의/계속 버튼(있으면)
+        self.dev.tap_texts(config.TG_SSO_CONSENT_TEXTS, timeout=4, partial=False)
+        time.sleep(5)
+        return True
+
     # ── STEP 6 ───────────────────────────────────────────────────
     def step06_login_arrow(self):
         # 번호 화면: 국가코드(82) 확인/입력 + 전화번호 확인 + 다음 + '네' 확인
@@ -187,12 +222,19 @@ class Runner:
                 pass
             time.sleep(0.8)
             try:
+                # 번호: 반드시 기존값 완전 삭제(clear_text) 후 재설정.
+                # (이 기기/IME에서 set_text가 기존 값에 덧붙어 번호가 깨지는 버그 대비)
                 num = self.d(className="android.widget.EditText")[1]
-                cur = (num.get_text() or "").replace(" ", "")
-                if not cur.isdigit() or len(cur) < 9:
-                    num.click(); time.sleep(0.3)
-                    num.set_text(config.TG_PHONE_NATIONAL)
-                num_set = True
+                num.click(); time.sleep(0.3)
+                num.clear_text(); time.sleep(0.4)
+                num.set_text(config.TG_PHONE_NATIONAL); time.sleep(0.4)
+                cur = (self.d(className="android.widget.EditText")[1].get_text() or "").replace(" ", "")
+                # 혹시 아직 안 맞으면 한 번 더 시도
+                if cur != config.TG_PHONE_NATIONAL:
+                    num.clear_text(); time.sleep(0.4)
+                    num.set_text(config.TG_PHONE_NATIONAL); time.sleep(0.4)
+                    cur = (self.d(className="android.widget.EditText")[1].get_text() or "").replace(" ", "")
+                num_set = (cur == config.TG_PHONE_NATIONAL)
             except Exception:
                 pass
             time.sleep(0.8)
@@ -208,22 +250,30 @@ class Runner:
         time.sleep(3)
         # 번호 확인 다이얼로그: '네' 등 긍정 버튼
         confirmed = self.dev.tap_texts(config.TG_NUMBER_CONFIRM_TEXTS, timeout=6, partial=False)
+        time.sleep(4)
+        # flood로 이메일 인증이 요구되면 Google SSO로 로그인
+        sso = self._handle_google_sso()
         return self.record(6, "로그인 화살표(다음) 선택",
                            "PASS" if tapped else "WARN",
-                           f"국가코드82:{cc_set}, 번호:{num_set}, 다음:{tapped}, 확인(네):{confirmed} — SMS 자동입력 대기")
+                           f"국가코드82:{cc_set}, 번호:{num_set}, 다음:{tapped}, 확인(네):{confirmed}, "
+                           f"Google SSO:{sso} — SMS/SSO 로그인 대기")
 
     # ── STEP 7 ───────────────────────────────────────────────────
     def step07_verify_login(self):
-        # SMS 자동입력/로그인 완료까지 넉넉히 대기(최대 ~60초)
+        # SMS 자동입력/SSO 로그인 완료까지 대기(최대 ~60초)
         logged_in = False
-        for _ in range(12):
+        sso_used = False
+        for i in range(12):
             if self._is_logged_in(timeout=5):
                 logged_in = True
                 break
+            # 이메일 인증 화면이 (늦게) 뜨면 Google SSO 시도(1회)
+            if not sso_used and self.dev.exists_any_text(config.TG_EMAIL_VERIFY_TEXTS, timeout=1):
+                sso_used = self._handle_google_sso()
             time.sleep(3)
         return self.record(7, "로그인 확인",
                            "PASS" if logged_in else "FAIL",
-                           f"채팅 목록/하단 탭 감지(로그인 완료): {logged_in}")
+                           f"로그인 완료: {logged_in} (SSO 폴백 사용: {sso_used})")
 
     # ── STEP 8 ───────────────────────────────────────────────────
     def step08_airplane_on(self):

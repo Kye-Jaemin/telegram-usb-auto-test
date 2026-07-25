@@ -35,6 +35,13 @@ TG_COUNTRY_CODE = "82"
 TG_PHONE_NATIONAL = "1074043537"
 # 번호 확인 다이얼로그 긍정 버튼(주의: '예'가 아니라 '네')
 TG_NUMBER_CONFIRM_TEXTS = ["네", "예", "계속", "OK", "확인", "Yes", "Continue"]
+# flood로 SMS 대신 이메일 인증이 요구될 때 Google SSO로 로그인
+# (이미 폰에 로그인된 구글 계정을 탭으로 선택 — OAuth 동의, 코드 입력 없음)
+TG_EMAIL_VERIFY_TEXTS = ["이메일을 확인하세요", "Google 계정으로 로그인", "Sign in with Google", "이메일로 로그인"]
+TG_GOOGLE_LOGIN_TEXTS = ["Google 계정으로 로그인", "Sign in with Google"]
+TG_GOOGLE_ACCOUNT_NAME = "정경애"
+TG_GOOGLE_ACCOUNT_EMAIL = "kyeoungae.jung"
+TG_SSO_CONSENT_TEXTS = ["계속", "Continue", "허용", "Allow", "확인", "OK"]
 # 로그인 완료 상태(채팅 목록)에서 나타나는 요소
 TG_LOGGED_IN_TEXTS = [
     "채팅", "Chats",
