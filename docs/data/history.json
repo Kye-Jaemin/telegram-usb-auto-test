@@ -1,10 +1,108 @@
 {
   "totals": {
-    "attempts": 35,
-    "pass": 34,
+    "attempts": 36,
+    "pass": 35,
     "fail": 1
   },
   "runs": [
+    {
+      "run_id": "20260726-041034",
+      "run_at": "2026-07-26 04:10:34",
+      "model": "SM-F971N",
+      "android": "17",
+      "duration": 174.5,
+      "overall": "PASS",
+      "n_pass": 14,
+      "n_fail": 0,
+      "n_warn": 0,
+      "steps": [
+        {
+          "idx": 1,
+          "title": "텔레그램 실행",
+          "status": "PASS",
+          "detail": "현재 앱: com.google.android.gm, 텔레그램 채팅목록 감지: True"
+        },
+        {
+          "idx": 2,
+          "title": "설정>내 계정>로그아웃",
+          "status": "PASS",
+          "detail": "옵션화면 로그아웃버튼:True, 확인:True, 로그아웃됨:True"
+        },
+        {
+          "idx": 3,
+          "title": "로그아웃 확인",
+          "status": "PASS",
+          "detail": "로그인 화면(시작하기/전화번호) 감지: True"
+        },
+        {
+          "idx": 4,
+          "title": "Recent 진입 후 텔레그램 종료",
+          "status": "PASS",
+          "detail": "최근앱 스와이프 후 잔여 pid='29155', 강제종료 후 종료됨: True"
+        },
+        {
+          "idx": 5,
+          "title": "텔레그램 재실행 > 시작하기",
+          "status": "PASS",
+          "detail": "'시작하기' 탭: True, 로그인 진행화면 감지: True"
+        },
+        {
+          "idx": 6,
+          "title": "로그인 화살표(다음) 선택",
+          "status": "PASS",
+          "detail": "국가코드82:True, 번호:True, 다음:True, 확인(네):False, Google SSO:False — SMS/SSO 로그인 대기"
+        },
+        {
+          "idx": 7,
+          "title": "로그인 확인",
+          "status": "PASS",
+          "detail": "로그인 완료: True (SSO 폴백 사용: False)"
+        },
+        {
+          "idx": 8,
+          "title": "비행기모드 On",
+          "status": "PASS",
+          "detail": "비행기모드 On (방식: cmd connectivity, 상태=True)"
+        },
+        {
+          "idx": 9,
+          "title": "5초 후 비행기모드 Off",
+          "status": "PASS",
+          "detail": "5초 유지 후 Off (방식: cmd connectivity, 상태=False)"
+        },
+        {
+          "idx": 10,
+          "title": "ExpressVPN 실행",
+          "status": "PASS",
+          "detail": "현재 앱: com.expressvpn.vpn, VPN 화면 감지: True"
+        },
+        {
+          "idx": 11,
+          "title": "ExpressVPN 서버 미국으로 변경",
+          "status": "PASS",
+          "detail": "위치변경진입:True, 선택:미국 - 로스앤젤레스 - 1, 연결/미국표시:True"
+        },
+        {
+          "idx": 12,
+          "title": "텔레그램 재실행 정상 동작",
+          "status": "PASS",
+          "detail": "정상 실행: True, 로그인 유지: True"
+        },
+        {
+          "idx": 13,
+          "title": "\"뚱재민\"에게 \"test\" 전송",
+          "status": "PASS",
+          "detail": "검색:True, 대화방:True, 입력:True, 전송:True, 입력창비움:True"
+        },
+        {
+          "idx": 14,
+          "title": "ExpressVPN 서버 한국으로 변경(최종)",
+          "status": "PASS",
+          "detail": "위치변경진입:True, 선택:대한민국 - 2, 연결/한국표시:True"
+        }
+      ],
+      "failed_steps": []
+    },
     {
       "run_id": "20260726-040735",
       "run_at": "2026-07-26 04:07:35",
