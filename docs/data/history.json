@@ -1,10 +1,32 @@
 {
   "totals": {
-    "attempts": 50,
+    "attempts": 51,
     "pass": 46,
-    "fail": 4
+    "fail": 5
   },
   "runs": [
+    {
+      "run_id": "20260726-091429",
+      "run_at": "2026-07-26 09:14:29",
+      "model": "SM-F971N",
+      "android": "17",
+      "duration": 0.0,
+      "overall": "FAIL",
+      "n_pass": 0,
+      "n_fail": 1,
+      "n_warn": 0,
+      "steps": [
+        {
+          "idx": 7,
+          "title": "로그인 확인",
+          "status": "FAIL",
+          "detail": "flood 쿨다운: '너무 많이 시도하셨습니다. 나중에 다시 시도하세요' 로 로그인 차단"
+        }
+      ],
+      "failed_steps": [
+        7
+      ]
+    },
     {
       "run_id": "20260726-085357",
       "run_at": "2026-07-26 08:53:57",
