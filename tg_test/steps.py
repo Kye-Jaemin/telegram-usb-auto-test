@@ -257,29 +257,41 @@ class Runner:
         # 번호 확인 다이얼로그: '네' 등 긍정 버튼
         confirmed = self.dev.tap_texts(config.TG_NUMBER_CONFIRM_TEXTS, timeout=6, partial=False)
         time.sleep(4)
+        # 쿨다운('너무 많이 시도') 다이얼로그가 뜨면 그 화면을 그대로 기록(닫지 않음 → record가 캡처)
+        cooldown = self.dev.exists_any_text(["너무 많이", "나중에 다시", "죄송합니다"], timeout=1)
         # flood로 이메일 인증이 요구되면 Google SSO로 로그인
-        sso = self._handle_google_sso()
+        sso = False if cooldown else self._handle_google_sso()
+        status = "WARN" if cooldown else ("PASS" if tapped else "WARN")
         return self.record(6, "로그인 화살표(다음) 선택",
-                           "PASS" if tapped else "WARN",
+                           status,
                            f"국가코드82:{cc_set}, 번호:{num_set}, 다음:{tapped}, 확인(네):{confirmed}, "
-                           f"Google SSO:{sso} — SMS/SSO 로그인 대기")
+                           f"쿨다운:{cooldown}, Google SSO:{sso} — SMS/SSO 로그인 대기")
 
     # ── STEP 7 ───────────────────────────────────────────────────
     def step07_verify_login(self):
         # SMS 자동입력/SSO 로그인 완료까지 대기(최대 ~60초)
         logged_in = False
         sso_used = False
+        cooldown = False
         for i in range(12):
             if self._is_logged_in(timeout=5):
                 logged_in = True
+                break
+            # 쿨다운/에러 다이얼로그 감지(닫지 않음 → record가 에러 화면 그대로 캡처)
+            if self.dev.exists_any_text(["너무 많이", "나중에 다시", "죄송합니다"], timeout=1):
+                cooldown = True
                 break
             # 이메일 인증 화면이 (늦게) 뜨면 Google SSO 시도(1회)
             if not sso_used and self.dev.exists_any_text(config.TG_EMAIL_VERIFY_TEXTS, timeout=1):
                 sso_used = self._handle_google_sso()
             time.sleep(3)
-        return self.record(7, "로그인 확인",
-                           "PASS" if logged_in else "FAIL",
-                           f"로그인 완료: {logged_in} (SSO 폴백 사용: {sso_used})")
+        detail = f"로그인 완료: {logged_in} (쿨다운: {cooldown}, SSO 폴백: {sso_used})"
+        result = self.record(7, "로그인 확인",
+                             "PASS" if logged_in else "FAIL", detail)
+        # 에러 화면 기록 후 쿨다운 다이얼로그 정리(다음 단계 진행 위해)
+        if cooldown:
+            self.dev.tap_texts(["확인", "OK"], timeout=2)
+        return result
 
     # ── STEP 8 ───────────────────────────────────────────────────
     def step08_airplane_on(self):
